@@ -1,0 +1,6 @@
+{
+  "name": "CraveCart - Food Delivery Management System",
+  "description": "Full-stack food delivery application and PostgreSQL DBMS management system with Swiggy/Zomato UX, live database analytics, and procedural workflows.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

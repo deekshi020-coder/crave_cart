@@ -1,0 +1,970 @@
+# PROJECT: CRAVECART — FULL-STACK FOOD DELIVERY MANAGEMENT SYSTEM
+
+Build a complete, polished, fully functional food delivery web application named **CraveCart**, inspired by the user experience of Swiggy and Zomato, with a real PostgreSQL database and all the requirements of my DBMS Design Assignment 2 (DA2).
+
+This is a college project that must work as both:
+1. A realistic, customer-facing food delivery application.
+2. A database-backed management system demonstrating relational database concepts, SQL queries, views, functions, stored procedures, triggers, and cursor-based processing.
+
+I am starting from scratch. Build the application end to end, not merely a landing page, UI mockup, or project plan.
+
+## 1. NON-NEGOTIABLE REQUIREMENTS
+
+- PostgreSQL is the primary and authoritative database.
+- Use a hosted PostgreSQL database such as Neon PostgreSQL.
+- Do not use MongoDB, Firebase, browser storage, or static JavaScript arrays as a substitute for PostgreSQL.
+- Use React for the frontend and Node.js with Express for the backend.
+- Use the `pg` Node.js package to connect to PostgreSQL.
+- Use server-side environment variables and secrets for database credentials.
+- Never expose the PostgreSQL connection string to the browser.
+- All restaurant listings, filters, menus, carts, orders, payments, reviews, loyalty calculations, and admin reports must use real backend/database operations.
+- Do not fake successful database operations. If a database connection is unavailable, show a clear setup or connection error.
+- Do not create a separate customer-facing page that lists the ten DA2 queries.
+- Integrate the DA2 query logic into natural application features, such as filters, sorting, loyalty discounts, customer insights, and restaurant performance analytics.
+- Implement all the database assignment requirements even when their results are displayed in normal application interfaces.
+- Keep the code modular, maintainable, and suitable for a college project demonstration.
+- Make the application responsive on laptop, tablet, and mobile.
+- Do not stop after producing the initial frontend. Complete the backend, schema, database setup, seed data, and functional workflows.
+
+# 2. TECH STACK
+
+Frontend:
+- React with Vite and JavaScript.
+- React Router for navigation.
+- Tailwind CSS or a consistent custom CSS design system.
+- Axios or fetch for API requests.
+- Lucide icons.
+- Reusable components for restaurant cards, menu items, filter panels, modals, tables, charts, forms, and loading states.
+- A chart library such as Recharts for dashboard visualizations.
+
+Backend:
+- Node.js and Express.
+- PostgreSQL using `pg`.
+- Environment-based configuration.
+- Server-side authentication and role-based authorization.
+- Input validation, centralized error handling, and parameterized SQL queries.
+
+Database:
+- PostgreSQL hosted on Neon or another externally accessible PostgreSQL provider.
+- Use SQL migrations or a clearly organized database initialization script.
+- Keep schema creation, seed data, views, functions, procedures, and triggers reproducible.
+
+Use a clean project structure, for example:
+
+- `client/` — React application.
+- `server/` — Express API.
+- `server/src/routes/`
+- `server/src/controllers/`
+- `server/src/services/`
+- `server/src/db/`
+- `server/src/middleware/`
+- `server/src/sql/`
+- `server/src/validators/`
+- `database/migrations/`
+- `database/seeds/`
+- `README.md`
+- `DBMS_ASSIGNMENT_MAPPING.md`
+
+Adapt the exact structure to the runtime supported by Google AI Studio Build mode. If its runtime requires a different folder structure, preserve the separation of concerns.
+
+# 3. BRAND IDENTITY AND DESIGN
+
+Brand name: CraveCart.
+
+Tagline: "Good food. Great mood."
+
+Create a premium, friendly food delivery experience with:
+- Warm cream or off-white backgrounds.
+- Coral or tomato-red primary accents.
+- Dark charcoal text.
+- Rounded cards and buttons.
+- Subtle shadows and borders.
+- Beautiful food photography.
+- Consistent spacing and typography.
+- Clean icons and micro-interactions.
+- Smooth but restrained transitions.
+- Responsive navigation.
+- Accessible color contrast and visible focus states.
+
+The design should feel like a genuine commercial food delivery product, not a generic admin template or college project dashboard.
+
+Use actual image assets where available. Avoid broken image links and random unrelated imagery. If a remote image fails, provide a graceful fallback.
+
+Use Indian rupees (₹) for prices. Format amounts consistently and use realistic restaurant and food data appropriate for an Indian audience.
+
+Create a coherent visual identity across customer, restaurant, checkout, delivery, and admin screens.
+
+# 4. USER ROLES AND AUTHENTICATION
+
+Implement three roles:
+
+1. Customer.
+2. Administrator.
+3. Delivery agent.
+
+Implement:
+- Registration and login.
+- Secure password hashing using bcrypt or an appropriate equivalent.
+- Server-side authentication.
+- Protected routes.
+- Role-based authorization enforced on the backend, not only in the frontend.
+- Logout.
+- User profile.
+- Address management.
+- Validation and useful error messages.
+
+Do not create an insecure hardcoded admin login or a frontend-only role switch. Provide a documented, safe way to bootstrap the initial administrator account.
+
+Customers must not access administrator APIs by changing a URL.
+
+Delivery agents should only be able to access the deliveries and information assigned to them.
+
+# 5. CUSTOMER APPLICATION — MAIN EXPERIENCE
+
+The customer-facing application is the highest-priority interface. It should feel like a real food ordering app.
+
+## 5.1 Homepage
+
+Build a polished homepage containing:
+
+- Delivery location selector.
+- Search bar for restaurants, cuisines, and dishes.
+- Food category carousel.
+- Featured and recommended restaurants.
+- Top-rated restaurants.
+- Popular dishes or categories based on actual order data.
+- Restaurant cards containing:
+  - Image.
+  - Restaurant name.
+  - Cuisine.
+  - Average rating.
+  - Price information.
+  - Delivery estimate, if configured.
+  - Available offers.
+  - Availability status.
+- Promotional banners driven by actual coupon/offer data where appropriate.
+- Loading skeletons and empty states.
+
+Do not put the DA2 assignment questions or SQL query numbers on this page.
+
+## 5.2 Restaurant discovery filters
+
+Integrate filters directly into the restaurant listing, similar to Swiggy or Zomato.
+
+Provide:
+- `Rating 4.0+`
+- `Pure Veg`
+- `Offers`
+- `Price`
+- `Cuisines`
+- `Sort`
+
+Allow customers to combine applicable filters.
+
+Cuisine filters should use actual restaurant-cuisine relationships. Vegetarian filters should use actual menu-item or restaurant attributes. Offers should use valid active promotions, not hardcoded labels.
+
+The price filter should offer a clear, defined price measure, such as average menu price or restaurant price range.
+
+Sort options:
+- Recommended.
+- Rating: High to Low.
+- Price: Low to High.
+- Price: High to Low.
+- Most Popular, based on eligible historical sales.
+
+Implementation requirements:
+- On mobile, use a polished bottom sheet or filter drawer.
+- On desktop, use filter chips and a suitable panel or popover.
+- Show selected filters.
+- Provide Apply and Clear All actions.
+- Display the number of matching restaurants.
+- Keep the user on the discovery page when applying filters.
+- Support loading states, no-results states, and error handling.
+- Ensure search and filters work together.
+- Reset pagination when filters change.
+
+All filtering and sorting must be executed against PostgreSQL through backend endpoints. Do not filter only a small array of restaurants already loaded into the browser.
+
+Use safe parameterized SQL. Never concatenate unchecked user input into SQL.
+
+## 5.3 Restaurant details and menu
+
+When a customer opens a restaurant, show:
+- Restaurant information.
+- Average rating and review count.
+- Cuisine.
+- Menu categories.
+- Search within the menu.
+- Menu items with name, image, description, price, dietary attributes, and availability.
+- Add-to-cart controls.
+- Quantity controls.
+- Relevant offers.
+
+Provide menu filters and sorting:
+- Filter by category.
+- Filter by vegetarian/non-vegetarian where applicable.
+- Sort by price ascending or descending.
+- Show popular items using actual sales data where available.
+
+Menu price sorting must query the real database. Category filters must use the database relationships.
+
+## 5.4 Cart
+
+Implement a functional cart with:
+- Add item.
+- Remove item.
+- Increase/decrease quantity.
+- Restaurant-aware cart rules.
+- Item subtotal.
+- Delivery fee, if configured.
+- Applicable discount.
+- Tax calculation if configured for the project.
+- Grand total.
+- Clear cart with confirmation.
+
+Validate all item prices, availability, coupon rules, and totals on the server. Never trust a total calculated only by the frontend.
+
+## 5.5 Checkout and payment
+
+Create a complete checkout flow:
+- Select delivery address.
+- Review cart.
+- Apply eligible coupon.
+- Show loyalty discount.
+- Display item subtotal, discount, fees, tax if configured, and final total.
+- Select a simulated payment method.
+- Place order.
+- Display order confirmation.
+
+For this academic project, implement clearly labelled simulated payments. Do not collect actual card numbers, CVVs, banking passwords, or other payment credentials.
+
+Prevent duplicate orders from repeated clicks or retried requests. Use transactions and idempotency protection where appropriate.
+
+## 5.6 Order history and tracking
+
+Create:
+- My Orders.
+- Order details.
+- Order item snapshots.
+- Order status timeline.
+- Delivery agent information where assigned.
+- Order cancellation where permitted.
+- Reorder functionality if practical.
+
+Use a consistent status workflow:
+
+`Placed → Confirmed → Preparing → Ready for Pickup → Out for Delivery → Delivered`
+
+Include `Cancelled` as an appropriate alternative status.
+
+Validate status transitions on the backend. Record status changes with timestamps. Do not allow arbitrary status jumps or unauthorized updates.
+
+# 6. CUSTOMER PROFILE AND LOYALTY
+
+Create a profile page containing:
+- Personal details.
+- Saved delivery addresses.
+- Order history.
+- Eligible order count.
+- Loyalty discount level.
+- Relevant spending information.
+
+Implement the loyalty discount rules from DA2 using actual PostgreSQL data:
+
+- More than five eligible orders: 20% discount.
+- Three to five eligible orders: 10% discount.
+- Fewer than three eligible orders: 0% discount.
+
+Use one clearly documented definition of an eligible order and apply it consistently. Exclude cancelled orders. Decide and document whether completed orders or all non-cancelled orders qualify, based on the project's business rules.
+
+Create the PostgreSQL view `loyalty_customers` and use it in the customer account/checkout flow.
+
+Validate the discount and its eligibility on the backend. Prevent the customer from modifying the discount percentage or customer ID to obtain another customer's benefit.
+
+Show the applied discount clearly at checkout. The frontend should not simply display a hardcoded 10% or 20% label.
+
+# 7. DATABASE SCHEMA
+
+Design a normalized relational PostgreSQL schema. Adapt names and relationships consistently throughout the frontend, backend, views, and assignment queries.
+
+Include appropriate tables for:
+
+1. `users`
+   - User ID.
+   - Name.
+   - Email.
+   - Password hash.
+   - Role.
+   - Phone where needed.
+   - Created timestamp.
+   - Active status.
+
+2. `addresses`
+   - Address ID.
+   - Customer/user ID.
+   - Address label.
+   - Address fields.
+   - Default-address indicator.
+
+3. `restaurants`
+   - Restaurant ID.
+   - Name.
+   - Description.
+   - Image URL.
+   - Address or service area.
+   - Availability status.
+   - Configured delivery information.
+   - Created timestamp.
+
+4. `categories`
+   - Category ID.
+   - Category name.
+   - Description.
+   - Image where useful.
+
+5. `restaurant_categories`
+   - Restaurant ID.
+   - Category ID.
+   - Appropriate composite or unique constraint.
+
+6. `menu_items`
+   - Menu item ID.
+   - Restaurant ID.
+   - Category ID.
+   - Name.
+   - Description.
+   - Price.
+   - Image URL.
+   - Vegetarian/dietary attributes.
+   - Availability.
+   - Created timestamp.
+
+7. `carts`
+   - Cart ID.
+   - Customer ID.
+   - Status or active-cart information.
+   - Created/updated timestamps.
+
+8. `cart_items`
+   - Cart item ID.
+   - Cart ID.
+   - Menu item ID.
+   - Quantity.
+   - Appropriate uniqueness and quantity constraints.
+
+9. `coupons`
+   - Coupon ID.
+   - Code.
+   - Discount type.
+   - Discount value.
+   - Minimum order value.
+   - Maximum discount where applicable.
+   - Validity dates.
+   - Usage limits.
+   - Active status.
+
+10. `orders`
+    - Order ID.
+    - Customer ID.
+    - Restaurant ID.
+    - Delivery address snapshot or safe reference.
+    - Order status.
+    - Item subtotal.
+    - Discount.
+    - Delivery fee.
+    - Tax where configured.
+    - Final total.
+    - Coupon reference where applicable.
+    - Loyalty discount information where appropriate.
+    - Created and updated timestamps.
+
+11. `order_items`
+    - Order-item ID.
+    - Order ID.
+    - Menu-item reference.
+    - Item name snapshot.
+    - Quantity.
+    - Unit price snapshot.
+    - Line total.
+
+Historical prices must be stored in order items so that menu price changes do not alter previous order totals.
+
+12. `payments`
+    - Payment ID.
+    - Order ID.
+    - Payment method/type.
+    - Amount.
+    - Status.
+    - Transaction/reference ID suitable for simulation.
+    - Paid timestamp.
+
+13. `reviews`
+    - Review ID.
+    - Customer ID.
+    - Restaurant ID.
+    - Order reference where appropriate.
+    - Rating.
+    - Review text.
+    - Created timestamp.
+
+14. `delivery_agents`
+    - Delivery agent ID.
+    - User ID where appropriate.
+    - Availability.
+    - Other non-sensitive operational details.
+
+15. `vehicles`
+    - Vehicle ID.
+    - Delivery agent ID.
+    - Vehicle type.
+    - Operational status.
+
+16. `order_status_history`
+    - History ID.
+    - Order ID.
+    - Previous status.
+    - New status.
+    - Timestamp.
+    - Actor or source where appropriate.
+
+17. `audit_logs`
+    - Audit ID.
+    - Actor.
+    - Action.
+    - Entity type and ID.
+    - Timestamp.
+    - Safe metadata.
+
+Add any additional tables required for delivery assignments, restaurant management, or coupons.
+
+Use:
+- Primary keys.
+- Foreign keys.
+- Unique constraints.
+- NOT NULL constraints where appropriate.
+- CHECK constraints for ratings, quantities, amounts, and valid status values.
+- Indexes for frequent lookups and joins.
+- Appropriate timestamp handling.
+- Transactions for multi-step operations.
+
+Do not store multiple independent values in one column when a relational design is more appropriate.
+
+Avoid duplicate user tables for customers and administrators. Use roles when the same identity structure applies.
+
+# 8. DBMS ASSIGNMENT 2 — TEN REQUIRED SQL QUERIES
+
+Implement every query as a genuine PostgreSQL query against the application database.
+
+These queries must support real application features and administrator analytics. Do not create a standalone customer-facing assignment-query page.
+
+Create a file such as `DBMS_ASSIGNMENT_MAPPING.md` that maps each DA2 requirement to:
+- Its SQL logic.
+- The relevant database tables/views.
+- The backend endpoint or service.
+- The application screen where the result is used.
+
+## Query 1: Customers with more than five orders in September
+
+Find customers who placed more than five qualifying orders during September 2026.
+
+Use the half-open date range:
+
+`created_at >= DATE '2026-09-01' AND created_at < DATE '2026-10-01'`
+
+Count qualifying orders for each customer and return only those with more than five.
+
+Use appropriate joins and grouping.
+
+Integrate this query into the administrator's monthly customer/order analytics. Display customer name, order count, and relevant month information.
+
+## Query 2: Restaurants with average rating above four
+
+Calculate the average review rating for each restaurant.
+
+Return restaurants whose average rating is greater than 4.
+
+Use actual review records. Handle restaurants with no reviews consistently and do not assign them a fabricated rating.
+
+Integrate the logic into the rating filter and the administrator's restaurant analytics.
+
+## Query 3: Top three customers by total spending
+
+Find the top three customers by eligible paid spending.
+
+Use authoritative payment/order records. Exclude failed, pending, and unpaid payments. Define how refunds and cancelled orders are handled, and prevent duplicate counting when multiple payment records exist.
+
+Return customer details and total eligible spending in descending order.
+
+Integrate this into an administrator dashboard card or customer insights report named `Top Customers`.
+
+## Query 4: Customers spending above average
+
+Calculate each customer's total eligible spending and compare it against the average spending per customer.
+
+Return customers whose total exceeds that average.
+
+Define whether zero-spending customers are included in the average. Document the decision and apply it consistently.
+
+Avoid incorrect results caused by duplicated payment or order rows.
+
+Integrate the result into an administrator customer-insights report.
+
+## Query 5: Menu items priced above their restaurant's average
+
+For every restaurant, calculate the average price of its menu items.
+
+Return items whose price exceeds the average price of menu items at their own restaurant.
+
+Show restaurant name, menu-item name, item price, and restaurant average price.
+
+Integrate this query into an administrator menu-price analysis. Normal customers can still sort menu items by price through the restaurant menu.
+
+## Query 6: Highest-rated restaurants, including ties
+
+Find the restaurant or restaurants with the highest average review rating.
+
+Return all tied restaurants. Do not use a query that arbitrarily returns only one result.
+
+Choose and document a consistent policy for restaurants without reviews. If no restaurant has a rating, return an appropriate empty state rather than a fabricated result.
+
+Integrate the query into the homepage's top-rated restaurant section and administrator restaurant analytics.
+
+## Query 7: Food categories with more than two items sold
+
+Calculate the total quantity sold for each food category using actual order-item records.
+
+Return categories whose total sold quantity is greater than two.
+
+Use eligible orders and exclude cancelled orders from sales. Make sure the query sums item quantities rather than merely counting distinct menu items.
+
+Integrate this logic into category popularity and administrator sales analytics. Popularity must be based on real order data.
+
+## Query 8: Orders above average order value
+
+Calculate each eligible order's value using order-item quantities and stored unit-price snapshots.
+
+Compare each order's value with the average eligible order value.
+
+Return orders above the average, with order ID, customer, order value, and relevant timestamp.
+
+Define the eligibility rules consistently. Do not accidentally multiply order totals through joins with payments, reviews, or other one-to-many relationships.
+
+Integrate this into an administrator report named `High-Value Orders`.
+
+## Query 9: `loyalty_customers` PostgreSQL view
+
+Create a real PostgreSQL view named `loyalty_customers`.
+
+Include appropriate customer details, eligible order count, and discount percentage.
+
+Rules:
+- More than five qualifying orders: 20%.
+- Three to five qualifying orders: 10%.
+- Fewer than three qualifying orders: 0%.
+
+Use actual database records. Do not hardcode customer-specific discounts.
+
+Use this view in the customer's profile and checkout. The backend must verify the discount and eligibility before placing the order.
+
+Ensure customers with no qualifying orders are handled correctly.
+
+## Query 10: `restaurant_performance` PostgreSQL view
+
+Create a real PostgreSQL view named `restaurant_performance`.
+
+Include:
+- Restaurant ID.
+- Restaurant name.
+- Number of menu items.
+- Average review rating.
+- Order count.
+- Eligible revenue where supported by the data model.
+
+Use independent aggregates or other correct SQL techniques to avoid multiplication of menu-item counts, reviews, orders, and revenue.
+
+Use this view in the administrator dashboard's restaurant-performance cards and tables.
+
+Views must be created in the database through migrations or initialization scripts. Do not simulate a view using only a frontend calculation.
+
+# 9. PL/pgSQL — FIVE PROCEDURAL EXERCISES
+
+Implement PostgreSQL-compatible equivalents of all five DA2 procedural requirements.
+
+These are academic requirements, but the application must use their functionality where appropriate.
+
+## Exercise 1: Stored procedure to update order status
+
+Create a PostgreSQL procedure that updates an order's status.
+
+Requirements:
+- Validate that the order exists.
+- Validate the requested status transition.
+- Prevent unauthorized updates through the backend.
+- Update the order consistently.
+- Record the status transition in `order_status_history`.
+- Use transactions or appropriate database logic.
+
+Connect it to the order-management workflow. Administrators or authorized delivery agents should be able to update statuses according to their role.
+
+## Exercise 2: Function to calculate order total
+
+Create a PostgreSQL function that calculates an order total from its order items using:
+
+`Quantity × Stored Unit Price`
+
+Use the historical price snapshot stored in `order_items`.
+
+Make the function consistent with the project's order-total rules. If discounts, delivery fees, or tax are added separately, document which total the function returns and do not silently mix subtotal and final total.
+
+Use the same calculation rules in checkout and order verification where appropriate.
+
+## Exercise 3: Cursor-based customer report
+
+Implement a PostgreSQL cursor-based demonstration that processes or returns customers with more than two qualifying orders.
+
+Use a suitable function or procedure with a `REFCURSOR` if appropriate for PostgreSQL. Handle the cursor lifecycle correctly.
+
+Integrate its result into an administrator customer-insights report, not a separate assignment-query page.
+
+## Exercise 4: Trigger to set the initial order status
+
+Create a PostgreSQL trigger that sets a newly inserted order's status to `Placed` when no status is provided.
+
+Ensure the trigger works on actual order inserts.
+
+Avoid duplicate status-history entries when both application code and database triggers are involved. Decide which component is authoritative for each responsibility.
+
+Test the trigger by inserting a valid test order without an explicit status and verifying the resulting status.
+
+## Exercise 5: Anonymous block for customer ID 1
+
+Create a PostgreSQL `DO` block that calculates the loyalty discount for customer ID 1 according to the DA2 rules.
+
+The block should retrieve actual eligible order counts, calculate the appropriate discount, and output the result using `RAISE NOTICE`.
+
+It must handle a missing customer appropriately.
+
+Document how to execute this block in the PostgreSQL SQL editor. Do not run this block automatically on every page load.
+
+## Important procedural SQL distinction
+
+The assignment refers to PL/SQL, but the selected database is PostgreSQL. Use PostgreSQL syntax, including PL/pgSQL where appropriate. Do not copy Oracle-specific constructs unchanged.
+
+Keep the assignment's intended functionality intact and document any syntax differences.
+
+# 10. ADMINISTRATOR DASHBOARD
+
+Build a real administrator dashboard that looks like a business management interface.
+
+It must include:
+
+## Overview
+- Total customers.
+- Total restaurants.
+- Total orders.
+- Eligible revenue.
+- Order trends.
+- Revenue trends.
+- Recent orders.
+
+Every metric must be derived from actual PostgreSQL data.
+
+## Restaurant management
+- List restaurants.
+- Add, edit, activate/deactivate, and manage restaurants.
+- View average rating and menu-item count.
+- View order and revenue performance.
+
+## Menu and category management
+- Add/edit/delete menu items where appropriate.
+- Manage prices, descriptions, categories, images, dietary attributes, and availability.
+- Validate all changes.
+- Show menu-price analytics.
+
+## Order management
+- View orders.
+- Filter by status and date.
+- View order items, totals, payment status, and delivery information.
+- Update permitted order statuses.
+- Show order-status history.
+
+## Customer insights
+- Top three spending customers.
+- Customers spending above average.
+- Customers with more than five September orders.
+- Customers with more than two orders.
+- Loyalty discount distribution.
+
+## Restaurant and sales analytics
+- Restaurants with average ratings above four.
+- Highest-rated restaurants including ties.
+- Menu items priced above their restaurant average.
+- Categories with more than two items sold.
+- Orders above average order value.
+- Restaurant performance view.
+
+Display these as normal dashboard cards, charts, filters, and report tables. Do not label every card with an assignment question number.
+
+Keep technical SQL inspection out of the normal customer journey. A discreet, admin-only SQL definition or technical verification view may be included if useful for the academic demonstration, but it must not be the primary interface.
+
+# 11. DELIVERY AGENT EXPERIENCE
+
+Create a simple delivery-agent interface with:
+- Assigned deliveries.
+- Order and delivery details.
+- Customer delivery address as needed.
+- Current status.
+- Permitted status updates.
+- Delivery history.
+
+Enforce role-based access and status-transition rules. Delivery agents must not access unrelated customers' personal data or modify order totals or payments.
+
+# 12. BACKEND API
+
+Create organized REST API endpoints for the actual application functionality.
+
+Suggested endpoint groups:
+
+Authentication:
+- `POST /api/auth/register`
+- `POST /api/auth/login`
+- `POST /api/auth/logout`
+- `GET /api/auth/me`
+
+Restaurants:
+- `GET /api/restaurants`
+- `GET /api/restaurants/:id`
+- `GET /api/restaurants/:id/menu`
+
+Menu:
+- `GET /api/menu`
+- `GET /api/categories`
+
+Cart and checkout:
+- `GET /api/cart`
+- `POST /api/cart/items`
+- `PATCH /api/cart/items/:id`
+- `DELETE /api/cart/items/:id`
+- `POST /api/orders`
+- `GET /api/orders`
+- `GET /api/orders/:id`
+
+Customer:
+- `GET /api/profile`
+- `GET /api/profile/loyalty`
+- `GET /api/profile/addresses`
+- `POST /api/profile/addresses`
+
+Reviews:
+- `GET /api/restaurants/:id/reviews`
+- `POST /api/restaurants/:id/reviews`
+
+Admin:
+- `GET /api/admin/overview`
+- `GET /api/admin/analytics/monthly-customers`
+- `GET /api/admin/analytics/top-customers`
+- `GET /api/admin/analytics/above-average-spending`
+- `GET /api/admin/analytics/menu-price-analysis`
+- `GET /api/admin/analytics/top-rated-restaurants`
+- `GET /api/admin/analytics/category-sales`
+- `GET /api/admin/analytics/high-value-orders`
+- `GET /api/admin/analytics/restaurant-performance`
+- Appropriate restaurant, menu, category, customer, coupon, order, and delivery-management endpoints.
+
+These are suggested routes, not a reason to create duplicate functionality. Adjust them to the final implementation.
+
+All filters must be supported by real backend parameters. Validate filter values and use parameterized queries. Enforce authentication and authorization on protected endpoints.
+
+# 13. SECURITY AND DATA CORRECTNESS
+
+Implement:
+- Secure password hashing.
+- Server-side role authorization.
+- Parameterized SQL.
+- Input validation.
+- Safe error messages.
+- Server-side environment variables.
+- Correct transaction handling.
+- Foreign-key constraints.
+- Unique constraints and appropriate indexes.
+- Consistent order status transitions.
+- Consistent payment and order totals.
+- Server-side price and discount verification.
+- Prevention of duplicate orders on retries.
+- Protection against cross-customer access to carts, orders, and addresses.
+
+Never return password hashes or database secrets to the frontend.
+
+Do not build an endpoint that executes arbitrary SQL sent by the browser.
+
+Do not log passwords, connection strings, or payment credentials.
+
+# 14. DATABASE SETUP, MIGRATIONS, AND SAMPLE DATA
+
+Make database setup reproducible.
+
+Create SQL migrations or initialization scripts for:
+- All required tables.
+- Constraints and indexes.
+- `loyalty_customers`.
+- `restaurant_performance`.
+- The order-total function.
+- The order-status procedure.
+- The cursor-based demonstration.
+- The initial-status trigger.
+- Any supporting functions or triggers required by the application.
+
+Create realistic sample data containing:
+- Multiple customers.
+- Multiple restaurants.
+- Multiple cuisine/category relationships.
+- Several menu items per restaurant.
+- Different prices.
+- Different restaurant ratings, including ties where possible.
+- Multiple reviews.
+- Orders from different customers.
+- More than five qualifying orders for at least one customer during September 2026.
+- Customers in all three loyalty brackets.
+- Paid and unpaid payment records.
+- Multiple order items and quantities.
+- Categories with more than two eligible units sold.
+- Orders both above and below the average order value.
+- Data for testing the top three customers by spending.
+- Restaurants and menu items suitable for the required price comparisons.
+
+Do not create duplicate seed data on repeated runs. Use an idempotent seeding strategy where appropriate.
+
+Make it clear which records are demo seed data.
+
+Use realistic values and ensure relationships are valid.
+
+If no database connection is configured, still create the frontend and backend code, but show an explicit database setup state. Do not pretend that seeded records have been saved to a real database.
+
+# 15. TESTING
+
+Test the application beyond visual rendering.
+
+Database tests:
+- Tables and constraints exist.
+- Migrations can be run.
+- Seed data loads.
+- Views return correct data.
+- All ten DA2 query requirements execute correctly.
+- The order-total function returns the correct subtotal.
+- The order-status procedure validates and updates statuses.
+- The cursor report returns the correct customers.
+- The status trigger assigns `Placed`.
+- The loyalty block produces the correct result for customer ID 1.
+
+Query correctness tests:
+- The September date range includes September 1 and excludes October 1.
+- Rating filtering excludes restaurants below the selected threshold.
+- Tied highest-rated restaurants are all returned.
+- Price sorting works in both directions.
+- Combined filters work together.
+- Category sales sum quantities rather than merely counting menu items.
+- Paid spending excludes ineligible transactions.
+- Multi-table joins do not inflate counts or revenue.
+- Loyalty discounts use actual qualifying order counts.
+- Empty results are handled gracefully.
+
+Application tests:
+- Registration and login.
+- Role-protected routes.
+- Restaurant search and filters.
+- Menu browsing.
+- Cart changes.
+- Checkout and order creation.
+- Loyalty discount calculation.
+- Order history.
+- Order status updates.
+- Admin analytics.
+- Delivery-agent access restrictions.
+- Responsive layout.
+- API error handling.
+
+Do not claim a test passed unless it was actually executed. Report any untested components or remaining issues.
+
+# 16. README AND COLLEGE DEMONSTRATION
+
+Create a complete `README.md` containing:
+- Project overview.
+- Features.
+- Tech stack.
+- Architecture.
+- Database schema overview.
+- Setup instructions.
+- Environment variables.
+- How to connect Neon PostgreSQL.
+- How to execute migrations and seed data.
+- How to run the frontend and backend.
+- How to bootstrap the administrator account.
+- How to run tests.
+- How to deploy the application.
+- Known limitations.
+
+Create `DBMS_ASSIGNMENT_MAPPING.md` documenting every DA2 query and procedural exercise, the relevant SQL object, and the application feature where it is used.
+
+Prepare a natural demonstration workflow:
+
+1. Open the customer homepage.
+2. Apply the `Rating 4.0+` filter.
+3. Sort restaurants by rating.
+4. Search for a dish or cuisine.
+5. Open a restaurant and sort menu items by price.
+6. Add food to the cart.
+7. Show the loyalty discount at checkout.
+8. Place a simulated order.
+9. Open order history and show its status.
+10. Log in as administrator.
+11. Show top-spending customers and monthly customer analytics.
+12. Show restaurant performance and sales analytics.
+13. Demonstrate an order status update.
+14. Verify one or more results directly in the PostgreSQL SQL editor.
+
+This should demonstrate DBMS concepts through actual business workflows, not a separate list of assignment questions.
+
+# 17. IMPLEMENTATION ORDER
+
+Work in the following order, but continue through all phases rather than stopping after the first.
+
+Phase 1:
+- Inspect the runtime and create the project structure.
+- Build the responsive customer-facing design system and main pages.
+- Set up the server and PostgreSQL connection module.
+- Add a clear database connection health check.
+
+Phase 2:
+- Implement migrations, normalized schema, constraints, indexes, views, functions, procedures, trigger, and seed data.
+- Ensure migrations are repeatable and do not destroy existing data.
+
+Phase 3:
+- Implement authentication, restaurant APIs, database-backed filters and sorting, menus, cart, checkout, payments, and order history.
+
+Phase 4:
+- Implement customer loyalty integration, administrator dashboard, analytics, management functions, and delivery-agent workflows.
+
+Phase 5:
+- Implement and verify every DA2 SQL query and procedural exercise.
+- Write assignment mapping and setup documentation.
+- Test the complete application and fix errors.
+
+If a database secret is required, build everything possible first and tell me exactly how to configure it. Never ask me to paste my database password into chat.
+
+# 18. DEFINITION OF DONE
+
+The project is complete only when:
+- The customer interface looks like a polished food delivery application.
+- Restaurant filters and sorting work using PostgreSQL.
+- Menu, cart, checkout, and order history use real persistent database records.
+- Loyalty discounts are calculated from actual eligible orders.
+- The admin dashboard displays real analytics.
+- All ten DA2 SQL requirements are implemented and documented.
+- All five procedural exercises are implemented in PostgreSQL-compatible form.
+- The views, functions, procedure, trigger, and cursor-based report are actually defined in the database setup.
+- Database access is secure.
+- Migrations and seed data can be reproduced.
+- The README explains how to run the application.
+- The implementation is tested, and actual limitations are reported.
+
+Start by creating the complete project in Google AI Studio Build mode. Do not respond with only a plan or code snippets for me to assemble manually. Implement the files, connect the frontend to the backend, and complete as much of the working application as the environment permits. Clearly identify any remaining external setup required from me.

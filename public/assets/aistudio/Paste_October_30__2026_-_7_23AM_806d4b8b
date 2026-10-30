@@ -1,0 +1,875 @@
+# CRAVECART — COMPLETE FUNCTIONALITY FIXES, LIVE DELIVERY TRACKING AND FINAL PRODUCT REFINEMENT
+
+Continue working on my EXISTING CraveCart food delivery application.
+
+I want this application to behave like a real, fully functional food delivery platform similar in usability to Swiggy and Zomato.
+
+This is an implementation task, not a redesign-only task. Inspect the existing codebase, frontend, backend, PostgreSQL schema, API routes, stored procedures, triggers, authentication and existing workflows before making changes.
+
+## CRITICAL PRESERVATION REQUIREMENTS
+
+- Keep the existing Neon PostgreSQL connection working.
+- Do not change or remove `DATABASE_URL` or `JWT_SECRET`.
+- Do not switch databases.
+- Do not replace real database operations with mock data.
+- Do not delete existing customer accounts, orders or restaurant data.
+- Do not rebuild the entire project from scratch.
+- Preserve working authentication, cart, checkout, admin and delivery functionality.
+- Use safe, idempotent database migrations if changes are necessary.
+- Keep stored procedures, functions, triggers and views working internally.
+- Do not expose technical database terminology in normal customer-facing interfaces.
+- Test actual API responses and PostgreSQL writes, not just frontend appearance.
+
+# 1. FIX LIVE DELIVERY TRACKING COMPLETELY
+
+The current live delivery functionality is not working properly.
+
+When a delivery partner marks an order as Delivered, the change does not correctly reflect on the customer's side.
+
+Fix the entire delivery workflow from end to end.
+
+Rename any visible feature currently called "Live Delivery Pipeline" to:
+
+**Live Delivery Tracking**
+
+Remove the word "Pipeline" from all visible headings, navigation labels, buttons and notifications.
+
+### Customer live tracking
+
+Create a proper customer-facing live tracking experience.
+
+Customers should be able to see:
+- Order confirmation
+- Restaurant confirmation
+- Food preparation
+- Ready for pickup
+- Out for delivery
+- Delivered
+
+Display a clear visual progress tracker with timestamps for completed stages.
+
+When an order is Out for Delivery:
+- Show the assigned delivery partner's information where available.
+- Display the restaurant pickup location.
+- Display the customer's delivery destination.
+- Show the delivery route on an interactive map.
+- Display route distance and estimated arrival time when actual routing data is available.
+- Refresh delivery status automatically without requiring the customer to reload the page.
+
+When the delivery partner marks an order as Delivered, the customer page must update to Delivered automatically.
+
+### Backend synchronization
+
+Investigate the existing delivery assignment, order status, order status history, delivery partner API and customer order API.
+
+Implement reliable synchronization across:
+1. Delivery Partner dashboard.
+2. Customer order tracking page.
+3. Admin Orders and Dispatch dashboard.
+4. PostgreSQL order status history.
+
+Use the existing PostgreSQL order-status update procedure wherever appropriate.
+
+The backend must:
+- Validate the authenticated user.
+- Validate the delivery partner's assignment.
+- Validate allowed status transitions.
+- Update the order status in PostgreSQL.
+- Update delivery records consistently.
+- Record the status transition and timestamp.
+- Make the updated status available to all three roles.
+
+Use transactions so partial status updates do not leave inconsistent data.
+
+### Real-time updates
+
+Prefer Server-Sent Events, WebSockets or the existing real-time infrastructure if available.
+
+If real-time subscriptions are unavailable, implement sensible polling with an appropriate interval and cleanup.
+
+Do not simply hardcode a status update on the frontend.
+
+If real-time connectivity is temporarily unavailable, show the latest saved order status and retry safely.
+
+# 2. CASH ON DELIVERY — CORRECT PAYMENT LIFECYCLE
+
+Cash on Delivery must NEVER be marked as completed or collected before the order is actually delivered.
+
+Implement separate order and payment states.
+
+For COD:
+
+- Order placed: Payment status = Pending.
+- Order confirmed: Payment status = Pending.
+- Food preparing: Payment status = Pending.
+- Out for Delivery: Payment status = Pending.
+- Delivered: Payment status can become Paid/Collected only when delivery confirmation and cash collection are confirmed.
+
+Do not automatically mark COD as paid just because an order was created or dispatched.
+
+Add a proper delivery confirmation and cash collection action for the delivery partner.
+
+If the delivery partner confirms delivery but cash collection is not confirmed, preserve the appropriate outstanding payment state and make this visible to the admin.
+
+Ensure order status and payment status are not treated as the same field.
+
+The customer, admin and delivery partner must see consistent payment information.
+
+# 3. CLEAN ORDER STATUS HISTORY
+
+In the order status history section, remove the bracketed text:
+
+`(POSTGRESQL AUDIT LOG)`
+
+Do not display database implementation details in the UI.
+
+Use a clean heading such as:
+
+**Order Status History**
+
+Display:
+- Status
+- Date
+- Time
+- Relevant update description
+
+Keep the actual audit/history records in PostgreSQL. Only remove the technical wording from the visible interface.
+
+# 4. DEMO ACCOUNT AND LOYALTY PROFILE CHANGES
+
+The "Switch Demo Accounts" control should appear ONLY on the sign-in page.
+
+Remove it from:
+- Loyalty & Profile page
+- Customer dashboard
+- Customer navigation
+- Profile dropdown
+- Other authenticated customer screens
+
+It must not be visible to a signed-in customer such as Aarav.
+
+Do not remove the demo-account functionality from the sign-in page.
+
+### Add a new demo customer: Divya
+
+Create a demo customer profile:
+
+Name: Divya
+Email: divya@cravecart.com
+
+Use a secure demo password and display it only in the sign-in page's demo-account instructions.
+
+Seed this customer with exactly two completed historical orders, with realistic order items and payment records.
+
+The account must be a genuine PostgreSQL-backed customer account, not a hardcoded frontend profile.
+
+I will sign in as Divya, place another order and verify whether the 10% Gold loyalty discount is applied correctly.
+
+Ensure loyalty eligibility is calculated from the actual qualifying order history, not from a hardcoded customer name or frontend condition.
+
+Do not count cancelled, unpaid or otherwise ineligible orders if the existing loyalty rules exclude them.
+
+The customer should receive the correct Gold loyalty tier and 10% offer only when the actual eligibility criteria are satisfied.
+
+# 5. FIX SAVED DELIVERY ADDRESSES
+
+The Add New Delivery Address feature currently does not save entered details.
+
+Investigate and fix:
+- Address form state
+- Validation
+- API request
+- Backend address creation endpoint
+- Customer ID association
+- PostgreSQL insert/update queries
+- Authentication and authorization
+- Frontend refresh and persistence
+
+A customer must be able to:
+- Add a new address.
+- Edit an existing address.
+- Delete an address where permitted.
+- Save multiple addresses.
+- Set one address as default.
+- View saved addresses after logging out and signing in again.
+
+All addresses must belong to the authenticated customer.
+
+Do not save addresses only in local frontend state.
+
+### Address selection at checkout
+
+The checkout page must have a proper dropdown or address selector.
+
+For example, Aarav has:
+- Home
+- Work
+
+When ordering, he should be able to select either address.
+
+Do not automatically force Home as the only delivery address.
+
+Show the selected address clearly, allow the customer to change it, and use the selected address when creating the order.
+
+The selected delivery address must be stored as an order snapshot so historical orders retain their original destination even if the customer edits their saved address later.
+
+Validate address fields and ensure the form displays useful errors if saving fails.
+
+# 6. CHANGE THE APPLICATION LOCATION TO CHENNAI
+
+The entire application should represent Chennai, Tamil Nadu, India.
+
+Currently, the application shows Bengaluru/Bangalore in various places.
+
+Replace Bengaluru and Bangalore references throughout the application with Chennai, Tamil Nadu.
+
+Inspect:
+- Homepage location selector
+- Hero sections
+- Restaurant discovery
+- Footer
+- Restaurant seed data
+- Restaurant addresses
+- Delivery map defaults
+- Admin dashboard
+- Sample customer addresses
+- Demo orders
+- Promotional descriptions
+- Search defaults
+- Geocoding and map-related data
+
+Use Chennai-based fictional restaurant names and realistic Chennai locations in seed data.
+
+Examples of Chennai areas:
+- Anna Nagar
+- T. Nagar
+- Adyar
+- Velachery
+- OMR
+- Nungambakkam
+- Mylapore
+- Tambaram
+- Porur
+- Guindy
+- Perungudi
+- Besant Nagar
+
+Do not just change the displayed city label while retaining Bengaluru coordinates.
+
+Make sure map markers, addresses, restaurant locations and delivery routes use Chennai-related coordinates and addresses.
+
+The location selector should default to Chennai.
+
+If a user explicitly selects a different supported location, handle that selection properly rather than hardcoding Chennai into every possible order.
+
+# 7. FIX THE CART EXPERIENCE — SWIGGY/ZOMATO-STYLE CART BUBBLE
+
+Currently, clicking a food item causes the full order/cart side panel to open immediately.
+
+I do not want that behaviour.
+
+Change the interaction to a normal food delivery experience.
+
+### Expected behaviour
+
+1. The customer can add as many items as they want from the same restaurant.
+2. Clicking Add should add the item without opening the full cart side panel.
+3. The cart quantity and item count should update immediately.
+4. Show a small floating cart bubble at the bottom of the screen when the cart contains items.
+5. The bubble should show:
+   - Number of items
+   - Cart subtotal
+   - "View Cart" action
+
+6. Clicking View Cart should open the existing cart side panel.
+7. Keep the existing cart side panel design and its useful information, including:
+   - Item names
+   - Quantities
+   - Individual prices
+   - Subtotal
+   - Applicable discounts
+   - Delivery fee
+   - Taxes, if applicable
+   - Final total
+   - Checkout action
+
+8. The customer can increase/decrease quantities and remove items.
+9. The cart should persist in PostgreSQL for authenticated customers.
+10. Refreshing the page should not empty the cart.
+
+Do not automatically open the side panel when an item is added.
+
+### Restaurant consistency
+
+If a customer already has items from one restaurant and attempts to add an item from another restaurant, display a clear confirmation asking whether they want to clear the previous restaurant's cart and start a new one.
+
+Do not silently mix restaurant orders.
+
+# 8. FIX COUPON ELIGIBILITY
+
+Coupons must be validated according to their actual purpose.
+
+### WELCOME100
+
+The `WELCOME100` coupon must NOT work for Aarav because he is an existing customer.
+
+Implement new-customer eligibility based on actual customer history.
+
+It should not be possible for an existing customer to obtain the new-customer offer simply by repeatedly applying the coupon.
+
+### BIRYANI100
+
+This coupon must only apply when the cart contains eligible biryani products.
+
+If the cart contains only pizza, desserts, beverages or unrelated food, the coupon must be rejected.
+
+### SWEETTOOTH
+
+This coupon must only apply to eligible dessert/sweet products.
+
+It must not discount unrelated restaurant items.
+
+### GOLD loyalty discount
+
+The Gold loyalty discount should be based on the customer's actual qualifying order count and eligibility rules.
+
+For Divya:
+- Start with the two seeded completed orders.
+- Place one more qualifying order during testing.
+- Verify the appropriate Gold tier and 10% discount based on the actual eligibility rules.
+
+### Coupon validation
+
+Implement coupon validation on the backend, not just the frontend.
+
+Validate:
+- Coupon existence
+- Active status
+- Expiry date
+- Minimum order value
+- Eligible customer
+- Eligible product/category
+- Restaurant restrictions, if any
+- Usage limits
+- Whether the coupon has already been used where applicable
+
+Calculate discounts from eligible cart items only.
+
+Display useful error messages explaining why a coupon cannot be applied.
+
+Never trust a discount amount submitted by the frontend.
+
+# 9. IMPROVE FOOD AND RESTAURANT IMAGES
+
+The current restaurant and food images are repetitive.
+
+Improve image variety across the application.
+
+Use appropriate, distinct images for:
+- Individual restaurants
+- Restaurant cards
+- Biryani
+- Dosa
+- Idli
+- Parotta
+- Pizza
+- Burgers
+- Chinese dishes
+- Desserts
+- Cakes
+- Juices
+- Beverages
+- North Indian food
+- South Indian food
+- Street food
+
+Requirements:
+- Avoid reusing the same image for unrelated dishes.
+- Avoid using the same restaurant cover image for every restaurant.
+- Use appropriate image URLs or suitable image assets.
+- Add image fallbacks when an image fails to load.
+- Preserve aspect ratios and consistent image presentation.
+- Do not display unrelated food imagery for a dish.
+- Keep image loading efficient.
+
+# 10. FIX CUISINE CATEGORIES AND RESTAURANT FILTERS
+
+The current category filtering is incorrect.
+
+For example, selecting Beverages & Juices currently displays restaurants that sell biryani even when they do not offer beverages.
+
+Fix the underlying category relationships and filtering logic.
+
+### Category filtering
+
+A restaurant should appear in a selected category only if it actually offers at least one available menu item associated with that category, or has a valid restaurant-cuisine association as appropriate.
+
+Use the real PostgreSQL category and menu-item relationships.
+
+Do not rely on hardcoded frontend category arrays or restaurant-name matching.
+
+Ensure:
+- Beverages & Juices shows relevant restaurants.
+- Biryani shows restaurants with biryani.
+- Desserts shows restaurants with desserts.
+- Pizza shows restaurants with pizza.
+- South Indian shows relevant restaurants.
+- Other categories work consistently.
+
+### Sorting
+
+Fix every sorting option so that it changes the actual result order.
+
+Implement:
+- Recommended
+- Highest rated
+- Most popular
+- Fastest delivery
+- Lowest delivery fee
+- Price low to high
+- Price high to low
+
+Define the price metric consistently, such as average available menu-item price or minimum menu-item price, and use the same metric in the UI and backend.
+
+Filters must combine correctly.
+
+Example:
+Selecting Pure Veg + Beverages + Rating 4.0+ must return only restaurants satisfying all selected conditions.
+
+Add:
+- Active filter indicators
+- Clear All
+- Correct result count
+- Empty results message
+
+Use parameterized SQL queries and appropriate indexes where needed.
+
+# 11. PAYMENT METHOD UI AND SECURE PAYMENT WORKFLOW
+
+In the cart side panel, remove the word "Simulated" from the visible label.
+
+Change:
+
+"Simulated Payment Method"
+
+to:
+
+**Payment Method**
+
+Provide the available payment methods:
+- Cash on Delivery
+- UPI
+- Debit Card
+- Credit Card
+
+### UPI
+
+When the customer selects UPI:
+- Display a payment QR code or use a proper payment provider checkout integration.
+- Show the payable amount.
+- Display payment status.
+- Confirm payment only after verified provider confirmation.
+
+Do not display a fake QR code that claims to accept real money.
+
+If a real payment provider is not configured, clearly identify the flow as a test/demo payment experience and do not mark an order paid without a valid test transaction result.
+
+### Debit and credit cards
+
+Provide a professional card-payment interface.
+
+For actual payments, integrate a suitable payment provider's hosted checkout or secure tokenized payment fields.
+
+Never store raw card numbers, CVV, expiry details or other sensitive card information in PostgreSQL or application logs.
+
+Do not create a fake frontend card form that pretends to process real payments.
+
+If no payment gateway is configured, provide a clearly labelled test-payment experience that does not charge users.
+
+### COD
+
+Keep COD as a real selectable payment method with the payment lifecycle described in Section 2.
+
+Do not mark COD paid when the order is merely placed.
+
+# 12. FIX CUSTOMER AND ADMIN DATA SEPARATION
+
+Currently, when a customer selects food items, the admin dashboard sometimes displays those selections as though the admin personally selected them.
+
+This is incorrect.
+
+Fix customer-specific data ownership throughout the application.
+
+Requirements:
+- Each cart belongs to one authenticated customer.
+- Each order belongs to the customer who placed it.
+- Each address belongs to the appropriate customer.
+- Each review belongs to its author.
+- Admin screens must display actual customer order information as administrative records, not as the admin's own cart or order.
+- Delivery partners must only see their assigned deliveries.
+- Switching roles must not leak state between sessions.
+
+On logout or role change, clear the relevant frontend session and cached user-specific data.
+
+When a different user signs in, fetch that user's actual PostgreSQL-backed data.
+
+Do not reuse the previous user's cart, selected items, profile or order state.
+
+Enforce ownership and authorization in backend API routes, not just in frontend conditions.
+
+# 13. ADMIN CONSOLE — REMOVE CUSTOMER FEATURES
+
+The Admin dashboard should be designed for restaurant and business management.
+
+Remove:
+- My Orders
+- Loyalty & Profile
+- Customer cart
+- Customer loyalty interface
+
+These are customer features and should not appear in the Admin navigation.
+
+The Admin should manage:
+- Overview
+- Orders & Dispatch
+- Restaurant Catalog
+- Menu Management
+- Customers
+- Coupons & Offers
+- Business Analytics
+- Delivery Operations
+- System Status where useful
+
+Ensure admin pages are protected by backend role authorization.
+
+### Remove "LIVE DB" wording
+
+In the admin console's user-switch/dropdown area, remove the label "LIVE DB".
+
+Keep necessary internal database functionality, but do not expose development-oriented labels in the normal UI.
+
+# 14. ADMIN OVERVIEW — REAL ANALYTICS GRAPHS
+
+In the Admin Overview page, the Order Volume and Revenue Trend section currently displays tables or repeated content instead of actual graphs.
+
+Replace this with proper visual analytics.
+
+Use real PostgreSQL-backed data.
+
+Include:
+- Daily order volume
+- Revenue trend over time
+- Completed versus cancelled orders
+- Payment-method distribution
+- Order status distribution
+- Average order value
+
+Use appropriate line charts, bar charts or donut charts.
+
+Include sensible time filters such as:
+- Last 7 days
+- Last 30 days
+- Last 90 days
+
+Graphs must update based on the selected time period.
+
+Do not display fake chart data or copy the customer orders table into the chart section.
+
+Use actual aggregated database queries and ensure counts and revenue calculations are correct.
+
+# 15. BUSINESS ANALYTICS — REAL BUSINESS INSIGHTS
+
+The current Business Analytics section is presented as separate assignment queries.
+
+I do not want a separate academic query interface.
+
+Turn it into a genuine business analytics dashboard.
+
+The analytics should still execute the required PostgreSQL queries and use their results, but present them as useful business insights.
+
+Include the following insight cards, tables and charts:
+
+### Customer insights
+- Top 3 highest-spending customers.
+- Customers spending above average.
+- Average customer spending.
+- Customer order frequency.
+- Customer loyalty distribution.
+- Gold-tier customers.
+
+### Restaurant insights
+- Restaurants with average ratings above 4.
+- Highest-rated restaurant or restaurants, including ties.
+- Restaurant performance comparison.
+- Restaurant revenue and order volume.
+
+### Menu and pricing insights
+- Menu items priced above their restaurant's average menu price.
+- Price distribution across restaurants.
+- Popular dishes.
+
+### Category insights
+- Categories with more than two items sold, using total item quantities rather than the number of distinct menu products.
+- Category-wise revenue and sales distribution.
+
+### Order insights
+- Orders with values above the average order value.
+- Monthly order trends.
+- High-value orders.
+- Payment status distribution.
+
+Present these using:
+- Metric cards
+- Ranked tables
+- Bar charts
+- Line charts
+- Donut charts
+- Comparison views
+
+Include useful filters for date range, restaurant and category where appropriate.
+
+Do not display SQL query numbers, assignment questions or labels like "Question 1", "Query 2", etc.
+
+The underlying queries must actually execute against PostgreSQL.
+
+If a query fails, show an appropriate admin-facing error rather than inventing results.
+
+# 16. REMOVE THE OPERATIONAL WORKFLOW TAB
+
+The current Operational Workflow tab exposes procedural database and PL/SQL-style explanations.
+
+Remove this as a separate academic/developer-facing tab.
+
+The functionality must remain in the backend.
+
+Integrate the actual business workflows naturally into the application:
+
+- Order status updates use the existing PostgreSQL procedure.
+- Order totals use the appropriate database function.
+- New orders receive their default status through the existing trigger.
+- Loyalty calculations use the correct database logic.
+- Order status history records actual changes.
+- Admin and delivery partner actions execute authorized backend operations.
+
+The admin should interact with normal business controls, not a screen that looks like a database experiment.
+
+Keep technical documentation and implementation details internally available where appropriate.
+
+# 17. ADMIN ORDER STATUS CONTROLS
+
+In Orders & Dispatch, remove wording such as:
+
+"Updated to Out for Delivery via PostgreSQL Stored Procedure"
+
+Replace it with:
+
+"Order status updated to Out for Delivery"
+
+Beside the order status dropdown, replace:
+
+"Execute Stored Procedure"
+
+with:
+
+**Save Status**
+
+The button must:
+- Save the selected status.
+- Execute the existing backend status-update workflow and PostgreSQL stored procedure.
+- Show a loading state.
+- Prevent repeated submissions.
+- Display a normal success notification.
+- Display an understandable error on failure.
+- Refresh the order status and history after success.
+
+Do not remove the stored procedure itself.
+
+# 18. ADMIN RESTAURANT CATALOG
+
+Change:
+
+"Add New Restaurant to PostgreSQL"
+
+to:
+
+**Add New Restaurant**
+
+Remove technical database wording from the catalog interface.
+
+When an admin adds a restaurant:
+- Save it to PostgreSQL.
+- Show it in the Admin Catalog.
+- Show it in customer restaurant discovery.
+- Make it available in search and cuisine filters.
+- Make its restaurant details and menu accessible.
+- Make its menu items available for ordering.
+
+Use the existing database-backed APIs.
+
+Restaurant edits must update both admin and customer views.
+
+Restaurant removal must preserve historical orders.
+
+# 19. DELIVERY PARTNER DASHBOARD
+
+The delivery partner dashboard must be a dedicated logistics interface.
+
+Remove:
+- My Orders
+- Loyalty & Profile
+- Customer cart
+- Restaurant discovery for customers
+
+Use navigation such as:
+- Overview
+- Assigned Deliveries
+- Active Delivery
+- Delivery History
+- Profile / Availability
+
+Display actual assigned delivery information.
+
+Use an interactive map powered by OpenStreetMap and Leaflet or React Leaflet, depending on the existing application structure.
+
+Show:
+- Restaurant pickup marker.
+- Customer destination marker.
+- Delivery partner's location, with browser permission.
+- Route between restaurant and destination.
+- Actual route distance.
+- Estimated travel duration from a routing service such as OSRM, if available.
+- Delivery status.
+
+Do not invent coordinates, distances or estimated arrival times.
+
+If location permission is denied, the restaurant-to-customer route must still work when coordinates are available.
+
+Use the actual Chennai-based restaurant and customer address coordinates.
+
+Keep the map responsive and provide a fallback if routing or map tiles are unavailable.
+
+# 20. CUSTOMER RESTAURANT DISCOVERY AND DESIGN
+
+Retain the current CraveCart visual identity:
+- Warm cream background.
+- Charcoal typography.
+- Coral/red accents.
+- Premium restaurant imagery.
+- Clean typography and spacing.
+- Responsive desktop and mobile design.
+
+Make sure the customer experience remains intuitive.
+
+Keep the homepage focused on:
+- Discovering restaurants.
+- Browsing cuisines.
+- Searching dishes.
+- Applying valid offers.
+- Ordering food.
+- Tracking deliveries.
+
+No assignment labels, database labels or developer-oriented messages should appear.
+
+# 21. PRESERVE ALL REQUIRED POSTGRESQL FUNCTIONALITY
+
+Keep the existing technical database requirements working internally.
+
+Verify the following existing SQL operations and objects:
+- Customers with more than five orders in September 2026.
+- Restaurants with average rating above 4.
+- Top three customers by eligible spending.
+- Customers spending above average.
+- Menu items priced above their restaurant's average.
+- Highest-rated restaurants, including ties.
+- Categories with more than two items sold, based on total quantities.
+- Orders above average order value.
+- `loyalty_customers` view.
+- `restaurant_performance` view.
+- Order-status update procedure.
+- Order-total function.
+- Cursor-based customer query.
+- New-order default status trigger.
+- Loyalty discount calculation.
+
+Keep the loyalty rules consistent across checkout, customer profile, admin analytics and database views.
+
+The UI should display the resulting business information naturally without showing assignment question numbers.
+
+# 22. FINAL TESTING — MANDATORY
+
+Do not stop after generating frontend code.
+
+Actually run and verify the following workflows.
+
+### Customer tests
+- Aarav login.
+- Divya login.
+- Customer-specific cart isolation.
+- Add multiple food items.
+- Cart bubble.
+- View Cart.
+- Address creation and persistence.
+- Home/Work address selection.
+- Coupon eligibility.
+- Biryani-only coupon validation.
+- Dessert-only coupon validation.
+- WELCOME100 rejection for existing Aarav.
+- Divya's Gold eligibility and 10% discount after the required qualifying orders.
+- UPI and card payment flow, according to configured payment integration.
+- COD payment lifecycle.
+- Order placement.
+- Order history.
+- Live delivery tracking.
+- Automatic status updates.
+
+### Delivery partner tests
+- Delivery partner login.
+- Assigned delivery visibility.
+- OpenStreetMap display.
+- Restaurant and customer markers.
+- Route calculation.
+- Delivery status changes.
+- Mark as Delivered.
+- COD cash collection confirmation.
+- Customer tracking updates automatically.
+
+### Admin tests
+- Admin login.
+- Customer features absent from admin navigation.
+- Add restaurant.
+- Confirm restaurant appears on customer side.
+- Edit restaurant.
+- Menu management.
+- Save order status.
+- Confirm stored procedure executes.
+- Confirm status history updates.
+- Analytics graphs display real data.
+- Business analytics return actual query results.
+- Delivery management.
+
+### Database and security tests
+- PostgreSQL connection.
+- Existing migrations.
+- New migrations, if needed.
+- Seed data integrity.
+- Correct customer ownership.
+- Correct role authorization.
+- No cross-user cart or address access.
+- No fake payment confirmations.
+- No raw card data stored.
+- No duplicate orders from repeated requests.
+- No leaked credentials.
+- No broken existing API routes.
+
+If tests fail, diagnose and fix the underlying issue.
+
+Do not claim that a feature is working merely because its button appears on screen.
+
+At the end, provide:
+1. Summary of actual changes.
+2. Backend changes and migrations.
+3. Workflows successfully tested.
+4. Tests that failed.
+5. Any external service or configuration still required.
+
+**FINAL EXPECTATION:** CraveCart must behave like a cohesive, real food delivery application. Customers should be able to discover, order, pay and track food. Delivery partners should be able to manage assigned deliveries. Admins should be able to manage the business and view meaningful analytics. All three roles must share consistent, correctly persisted PostgreSQL data without exposing internal implementation details.
